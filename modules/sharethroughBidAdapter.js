@@ -6,7 +6,9 @@ const STR_ENDPOINT = document.location.protocol + '//btlr.sharethrough.com/heade
 
 export const sharethroughAdapterSpec = {
   code: BIDDER_CODE,
+
   isBidRequestValid: bid => !!bid.params.pkey && bid.bidder === BIDDER_CODE,
+
   buildRequests: (bidRequests) => {
     return bidRequests.map(bid => {
       return {
@@ -22,8 +24,12 @@ export const sharethroughAdapterSpec = {
       };
     })
   },
+
   interpretResponse: ({ body }, req) => {
-    if (!Object.keys(body).length) return [];
+    // backport defensive measures from Prebid.js#33a502b
+    if (!body || !body.creatives || !body.creatives.length) {
+      return [];
+    }
 
     const creative = body.creatives[0];
 
